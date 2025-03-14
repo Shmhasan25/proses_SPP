@@ -1,0 +1,3 @@
+<?php
+use CodeIgniter\Router\RouteCollection;
+$routes->post('/proses-spp', 'Controller_Anda::proses_spp'); //sesuaikan Controller Anda dengan nama controllernya dan buat method dengan nama proses_spp
