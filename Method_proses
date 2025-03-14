@@ -1,0 +1,39 @@
+function proses_spp()
+    {
+        $db = \Config\Database::connect();
+        $bln = $this->request->getvar('bln');
+        if ($bln < 10) {
+            $tbln = "0" . $bln;
+        } else {
+            $tbln = $bln;
+        }
+        $thn = $this->request->getvar('thn');
+        $tgl = $thn . '-' . $tbln . '-10';
+        $qry = "SELECT COUNT(tanggal) as jml FROM tbspp WHERE month(tanggal)='$bln' AND year(tanggal)='$thn'";
+        $cek = $db->query($qry);
+        $jmlrec = $cek->getNumRows();
+        if ($jmlrec < 1) {
+            $tarif = $db->query("SELECT * FROM tbtarif");
+            foreach ($tarif->getResultArray() as $trf) {
+                $ta = $trf['thnajaran'];
+                $jumlah = $trf['spp'];
+                $db->query("INSERT INTO tbspp(nis,tanggal,tgl_bayar,jumlah,thnajaran,bayar,kelulusan) SELECT nis,'$tgl','$tgl',$jumlah,'$ta',0,kelulusan FROM tbsiswa WHERE tahunajaran='$ta' AND kelulusan='Masih Sekolah'");
+            }
+            session()->set('bln-spp', $bln);
+            session()->set('thn-spp', $thn);
+            session()->setFlashdata('massage', '<div class="alert alert-success text-center" role="alert"><marquee>Pembayaran SPP Bulan ' . getBulan($bln) . ' Tahun ' . $thn . ' selesai dibuat, Proses SPP SUKSES !</marquee></div>');
+            return redirect()->route('data-spp');
+        } else {
+            $db->query("DELETE FROM tbspp WHERE month(tanggal)='$bln' AND year(tanggal)='$thn'");
+            $tarif = $db->query("SELECT * FROM tbtarif");
+            foreach ($tarif->getResultArray() as $trf) {
+                $ta = $trf['thnajaran'];
+                $jumlah = $trf['spp'];
+                $db->query("INSERT INTO tbspp(nis,tanggal,tgl_bayar,jumlah,thnajaran,bayar,kelulusan) SELECT nis,'$tgl','$tgl',$jumlah,'$ta',0,kelulusan FROM tbsiswa WHERE tahunajaran='$ta' AND kelulusan='Masih Sekolah'");
+            }
+            session()->set('bln-spp', $bln);
+            session()->set('thn-spp', $thn);
+            session()->setFlashdata('massage', '<div class="alert alert-danger text-center" role="alert"><marquee>Pembayaran SPP Bulan ' . getBulan($bln) . ' Tahun ' . $thn . ' sudah ada dan diperbaharui oleh Proses SPP, silahkan sesuaikan pembayaran yang sudah masuk !</marquee></div>');
+            return redirect()->route('data-spp');
+        }
+    }
