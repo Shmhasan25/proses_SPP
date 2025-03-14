@@ -1,0 +1,18 @@
+function cari_spp($bln, $thn)
+    {
+        $db = \Config\Database::connect();
+        if ($bln < 10) {
+            $tbln = "0" . $bln;
+        } else {
+            $tbln = $bln;
+        }
+        $qry = "SELECT tanggal FROM tbspp WHERE month(tanggal)='$bln' AND year(tanggal)='$thn'";
+        $cek = $db->query($qry);
+        $jmlrec = $cek->getNumRows();
+        // dd($jmlrec);
+        if ($jmlrec > 0) {
+            echo "<center>Data " . bulan($bln) . " Tahun " . $thn . " sudah ada !<br/>Baiknya Screen Shoot dulu data lamanya sebelum di TIMPA.</center>";
+        } else {
+            echo "Data Belum ada, Silahkan Proses !";
+        }
+    }
